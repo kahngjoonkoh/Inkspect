@@ -1,0 +1,85 @@
+Card 1
+1. A bat (ANOTHER THING?)
+W, on the sides, the wings spread, the middle is the body, and there the small points could be its head.
+
+2. A spider
+W, The same thing, the middle is the body and the sides are the legs.
+
+3. A butterfly
+W, the middle is the body and the sides are the wings, more like a dragonfly because there are many wings and the top is the head.]
+
+Card 2
+4. A beetle
+W, The front, the back and the body in the middle.
+
+5. I have the right not to take everything? (AS YOU WANT) For the top, the mandibles of an animal
+D2, the two red spots are the mandibles.
+
+6. nothing but black would be the wings of an insect.
+D3 just wings there and there.
+
+Card 3
+7. A beetle
+D1, the head, the two eyes, the open mouth there, the legs would be the two branches on the side and the back, the representation of its body.
+
+8. ^ The middle looks like the eyes of a fly and the top its antennae.
+D1? D7+D5? There the eyes and there the antennae.
+
+Card 4
+9. The top a raccoon
+D3, So here the eyes, there are stripes on the head, muzzle. (STRIPES?) just on the side, small thin lines.
+
+10. and for the bottom, a sad animal.
+D1, the bottom looks like a camel's head. (SAD?) he has narrowed eyes, lowered eyebrows.
+
+Card 5
+11. A flying animal, a bat
+W, given the position of the wings, it flies, it hovers in the air. (BAT?) same, just the wings.
+
+Card 6
+12. A crushed animal skin.
+W, head and body flattened at sides.
+
+Card 7
+13. The tusks of an elephant
+W, even though they look a bit burst, it looks like tusks on the sides.
+
+14. The horns of a deer.
+W, the same thing.
+
+Card 8
+15. ……. Lions on the sides.
+D1, the two spots there. (LIONS?) everything but his mane because there is none.
+
+16. In the middle, a butterfly
+D7, the orange color form.
+
+Card 9
+17. A group of rhinos
+D6, the two pink spots, there rather the eyes (in the center of D6). Like that ^that makes another animal
+
+Card 10
+18. V A beaver, on the sides of the jowls, spikes on his head and the two blue spots are his fists.
+DdS22+D1, There the spikes (D10), the yellow spots are his eyes (D2) the pink spots are his jowls (D9), the two blue spots are his fists (D1) and the small orange spot is the muzzle (D3).
+
+
+Card R Loc/DQ Determin FQ Cont P   Z   Special Scores
+I	1	Wo		FMp	o		A	P	ZW
+	2	Wo		F	-		A		ZW
+	3	Wo		F	u		A	P	ZW
+II	4	Wo		F	-		A		ZW
+	5	Do	2	F	-		Ad
+	6	Do	3	F	-		Ad
+III	7	DSo	1	F	-		A
+	8	Ddo	99	F	-		Ad
+IV	9	Do	3	FY	o		Ad
+	10	Do	1	Mp.FV	-		Ad,Hx			MOR, INC
+V	11	Wo		FMa	o		A	P	ZW
+VI	12	Wo		m'p	o		Ad	P	ZW	MOR
+VII	13	Wo		F	-		Ad		ZW	MOR
+	14	Wo		F	-		Ad		ZW	PSV
+VIII	15	Do	1	F	o	2	A	P		MOR
+	16	Do	7	F	u		A
+IX	17	D+	6	F	-	2	A		ZA
+X	18	DdSo	99	F	-		A			INC2
+
