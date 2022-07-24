@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Rorschach Inkblot Test</title>
+        <link href="https://andybrewer.github.io/mvp/mvp.css" rel="stylesheet"></link>
+
+    </head>
+    <body style="width: 100%; height: 100%; margin: 0; overflow: hidden;">
+        <h1 style="text-align: center;">Card {{no}}</h1>
+    <form id="responseForm" style="margin: auto; padding-bottom: 90px;">
+        <canvas id="c" width="500" height="300" style="margin: auto; display: block;""></canvas>
+        <h3 id="chat">Here you said, ""</h3>
+        <textarea type="text" style="resize: none; font-family: Arial, Helvetica, sans-serif; font-size: medium;" id="responseInput" rows="2" cols="30"></textarea>
+        <div>
+            <button id='responseButton' type="button" style="float: left; margin:4px;" onclick="enter();">Enter</button>
+            <button id='sendButton' type="button" hidden="hidden" style="float: right; margin: 4px" onclick="sendResponses();">Next</button>
+        </div>
+    </form>
+
+    <script type="text/javascript" src="static/js/inquiry_phase.js"></script>
+    </body>
+</html>
