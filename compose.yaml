@@ -1,0 +1,91 @@
+name: inkspect
+
+x-healthcheck: &healthcheck
+  interval: 5s
+  timeout: 3s
+  retries: 20
+  start_period: 10s
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-inkspect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inkspect}
+      POSTGRES_DB: ${POSTGRES_DB:-inkspect}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    restart: unless-stopped
+
+  scorer:
+    build: ./scorer
+    environment:
+      CODER: ${CODER:-rule}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LAYA_URL: ${LAYA_URL:-http://laya:8100}
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=2).status == 200 else 1)"]
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      additional_contexts:
+        regions: ./regions
+    environment:
+      # Set DATABASE_URL in .env to use an external Postgres (e.g. production) instead of the db service.
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://${POSTGRES_USER:-inkspect}:${POSTGRES_PASSWORD:-inkspect}@db:5432/${POSTGRES_DB:-inkspect}}
+      SCORER_URL: http://scorer:8000
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin}
+    depends_on:
+      db:
+        condition: service_healthy
+      scorer:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health', timeout=2).status == 200 else 1)"]
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+    restart: unless-stopped
+
+  # Local Laya decision model. Start with: docker compose --profile laya up -d
+  # and set CODER=laya (the scorer reaches it at LAYA_URL).
+  laya:
+    profiles: ["laya"]
+    build: ./scorer/laya_server
+    environment:
+      LAYA_CHECKPOINT: ${LAYA_CHECKPOINT:-}
+    volumes:
+      - laya-cache:/root/.cache/huggingface
+    restart: unless-stopped
+
+  # End-to-end test. Run with: docker compose --profile e2e run --rm e2e
+  e2e:
+    profiles: ["e2e"]
+    build: ./e2e
+    environment:
+      BASE_URL: http://web
+    depends_on:
+      web:
+        condition: service_healthy
+    ipc: host
+
+volumes:
+  db-data:
+  laya-cache:

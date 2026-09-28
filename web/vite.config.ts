@@ -5,8 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Dev server only: forward API calls to a locally running api service.
-      '/api': 'http://localhost:8000',
+      // Dev server only: forward API calls through the running compose stack (change if WEB_PORT differs).
+      '/api': 'http://localhost:8080',
     },
   },
 })
