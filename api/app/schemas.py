@@ -37,6 +37,7 @@ class CodesOverride(BaseModel):
     pair: bool | None = None
     contents: list[str] | None = None
     special_scores: list[str] | None = None
+    validity: Literal["genuine", "unserious", "gibberish", "refusal", "off_task"] | None = None
     note: str | None = None
 
 

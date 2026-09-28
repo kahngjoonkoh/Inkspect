@@ -55,19 +55,25 @@ def session_state(session: ExamSession) -> dict:
     }
 
 
+def scorer_request(r: Response) -> dict:
+    """The fields the scorer codes a response from; also the training-export format."""
+    return {
+        "card": r.card,
+        "orientation": r.orientation,
+        "verbatim": r.verbatim,
+        "inquiry": r.explanation or "",
+        "followups": r.followups or [],
+        "location": {k: r.location[k] for k in ("code", "number", "space", "label")} if r.location else None,
+    }
+
+
 def score_response(db: Session, r: Response, scorer: ScorerClient) -> None:
     text = inquiry_text(r.explanation, r.followups)
     region_map = get_map(db, r.card)
     r.location = map_location(region_map, r.regions or [], r.whole_card, mentions_space(r.verbatim, text))
     match = fq_lookup.lookup(r.card, r.location["label"], r.orientation, r.verbatim, text)
     r.fq_match = match.as_dict() if match else None
-    r.codes = scorer.code({
-        "card": r.card,
-        "orientation": r.orientation,
-        "verbatim": r.verbatim,
-        "inquiry": r.explanation or "",
-        "followups": r.followups or [],
-        "location": {k: r.location[k] for k in ("code", "number", "space", "label")},
+    r.codes = scorer.code(scorer_request(r) | {
         "fq_hint": {"item": match.item, "content": match.content, "fq": match.fq} if match else None,
         "coder": None,
     })
@@ -83,9 +89,20 @@ def score_session(db: Session, session: ExamSession, scorer: ScorerClient) -> No
 
 def results(db: Session, session: ExamSession, include_raw: bool = False) -> dict:
     rows = build_protocol(session.active_responses, include_raw=include_raw)
-    variables, summary = structural_summary(rows)
+    # Unserious, gibberish, refusal and off-task answers stay in the protocol for review, but their
+    # codes mean nothing, so they are left out of the structural summary.
+    genuine = [row for row in rows if row["validity"] == "genuine"]
+    variables, summary = structural_summary(genuine)
     placeholder = any(row["location"].get("placeholder") for row in rows)
     warnings = []
+    excluded = len(rows) - len(genuine)
+    if excluded:
+        warnings.append(f"{excluded} of {len(rows)} responses did not look like sincere answers (unserious, "
+                        "gibberish, refusal or off-task) and were left out of the summary. A reviewer can "
+                        "mark them genuine.")
+    if len(rows) and excluded / len(rows) >= 0.25:
+        warnings.append("A quarter or more of the answers were not sincere, so this record should not be "
+                        "interpreted.")
     if not variables["valid"]:
         warnings.append(f"Only {variables['R']} responses: CS requires at least 14 for a valid record.")
     if placeholder:

@@ -12,8 +12,8 @@ from ..deps import load_response, require_admin
 from ..location import parse_label
 from ..models import ExamSession, RegionMap, Response
 from ..schemas import CodesOverride, RegionMapBody
-from ..scoring import effective_codes, inquiry_text
-from ..service import results
+from ..scoring import effective_codes
+from ..service import results, scorer_request
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
 
@@ -83,12 +83,6 @@ def save_regions(card: int, body: RegionMapBody, db: Session = Depends(get_db)) 
     return data
 
 
-def _state_text(r: Response) -> str:
-    loc = (r.override or {}).get("location") or r.location or {}
-    return (f"Card {r.card}, orientation {r.orientation}, location {loc.get('label', '?')}. "
-            f"Response: {r.verbatim} Inquiry: {inquiry_text(r.explanation, r.followups)}")
-
-
 @router.get("/export/training.jsonl", response_class=PlainTextResponse)
 def export_training(db: Session = Depends(get_db)) -> str:
     rows = db.scalars(select(Response).where(Response.override.is_not(None), Response.discarded.is_(False))
@@ -96,7 +90,11 @@ def export_training(db: Session = Depends(get_db)) -> str:
     lines = []
     for r in rows:
         labels = effective_codes(r.codes, r.override)
-        if r.override.get("fq"):
-            labels["fq"] = r.override["fq"]
-        lines.append(json.dumps({"state": _state_text(r), "labels": labels, "source": "override"}))
+        labels = {k: labels[k] for k in ("validity", "dq", "determinants", "pair", "contents", "special_scores")}
+        if r.override.get("fq") in ("u", "-", "none"):
+            labels["fq_fallback"] = r.override["fq"]
+        request = scorer_request(r)
+        if r.override.get("location"):
+            request["location"] = {k: r.override["location"][k] for k in ("code", "number", "space", "label")}
+        lines.append(json.dumps({"response_id": r.id, "request": request, "labels": labels, "source": "override"}))
     return "\n".join(lines) + ("\n" if lines else "")

@@ -236,3 +236,13 @@ def test_naturally_colored_animals_are_not_incom():
 def test_detail_named_in_response_beats_whole_object_hint():
     codes = code("rabbit ears", card=5, fq_hint=FQHint(item="Rabbit", content="A", fq="u"))
     assert codes.contents == ["Ad"]
+
+
+@pytest.mark.parametrize("verbatim,expected", [
+    ("a bat", "genuine"), ("a buterfly wiht big wigns", "genuine"), ("a dead crushed animal", "genuine"),
+    ("a map of ohio", "genuine"), ("idk", "refusal"), ("nothing", "refusal"), ("asdfghjkl", "gibberish"),
+    ("jjjjjjjjj", "gibberish"), ("ur mom lol", "unserious"), ("deez nuts", "unserious"),
+    ("how long is this test", "off_task"),
+])
+def test_validity_heuristic(verbatim, expected):
+    assert code(verbatim).validity == expected

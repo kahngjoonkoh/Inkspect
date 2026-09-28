@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from .. import lexicon as lx
 from ..schema import ACHROMATIC_CARDS, CodeRequest, Codes
 from ..text import Hit, find, has_phrase, tokens
+from ..validity import classify
 from .base import Coder
 
 _EMOTIONS = {"sad": "p", "happy": "p", "angry": "a", "furious": "a", "scared": "p", "afraid": "p",
@@ -127,6 +128,7 @@ class RuleCoder(Coder):
             fq_fallback = "u"
 
         return Codes(
+            validity=classify(req.verbatim, req.inquiry_text()),
             dq=dq,
             determinants=determinants,
             pair=pair,

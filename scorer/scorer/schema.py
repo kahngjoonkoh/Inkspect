@@ -37,6 +37,10 @@ SPECIAL_SCORES: tuple[str, ...] = (
     "ALOG", "CONTAM", "AB", "AG", "COP", "MOR", "PER", "CP",
 )
 
+# Whether a response is a sincere attempt at the task (online test takers are not all cooperative).
+VALIDITY: tuple[str, ...] = ("genuine", "unserious", "gibberish", "refusal", "off_task")
+Validity = Literal["genuine", "unserious", "gibberish", "refusal", "off_task"]
+
 CARD_ROMAN = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", 9: "IX", 10: "X"}
 ORIENTATION_WORDS = {"^": "upright", ">": "rotated right", "v": "upside down", "<": "rotated left"}
 ACHROMATIC_CARDS = frozenset({1, 4, 5, 6, 7})
@@ -83,6 +87,7 @@ class Codes(BaseModel):
     contents: list[str] = Field(default_factory=list)
     special_scores: list[str] = Field(default_factory=list)
     fq_fallback: Literal["u", "-"] | None = None
+    validity: Validity = "genuine"
     evidence: dict[str, str] = Field(default_factory=dict)
     confidence: dict[str, float] = Field(default_factory=dict)
     coder: CoderName = "rule"

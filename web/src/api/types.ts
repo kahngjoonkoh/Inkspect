@@ -73,6 +73,8 @@ export interface InquiryResult {
   response: Response
 }
 
+export type Validity = 'genuine' | 'unserious' | 'gibberish' | 'refusal' | 'off_task'
+
 export interface Codes {
   dq: string
   determinants: string[]
@@ -80,6 +82,7 @@ export interface Codes {
   contents: string[]
   special_scores: string[]
   fq_fallback?: string | null
+  validity?: Validity
   evidence?: Record<string, string>
   confidence?: Record<string, number>
   coder?: string
@@ -102,6 +105,7 @@ export interface ProtocolRow {
   popular: boolean
   z: number | null
   special_scores: string[]
+  validity: Validity
   coder: string
   overridden: boolean
   score_line: string
@@ -176,6 +180,7 @@ export interface CodeOverride {
   pair: boolean
   contents: string[]
   special_scores: string[]
+  validity: Validity
   fq?: string | null
   note?: string
 }

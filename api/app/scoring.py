@@ -13,7 +13,7 @@ from .tables import ROMAN, is_popular, z_value
 FORMLESS = {"C", "Cn", "C'", "T", "V", "Y"}
 COGNITIVE = {"DV1", "DV2", "INC1", "INC2", "DR1", "DR2", "FAB1", "FAB2", "ALOG", "CONTAM"}
 HUMAN_CONTENT = {"H", "(H)", "Hd", "(Hd)", "Hx"}
-CODE_FIELDS = ("dq", "determinants", "pair", "contents", "special_scores")
+CODE_FIELDS = ("dq", "determinants", "pair", "contents", "special_scores", "validity")
 
 
 def inquiry_text(explanation: str, followups: list[dict]) -> str:
@@ -31,6 +31,7 @@ def effective_codes(codes: dict | None, override: dict | None) -> dict:
     merged.setdefault("pair", False)
     merged.setdefault("contents", [])
     merged.setdefault("special_scores", [])
+    merged.setdefault("validity", "genuine")
     return merged
 
 
@@ -126,6 +127,7 @@ def build_protocol(responses: list[Any], include_raw: bool = False) -> list[dict
             "z": z_value(r.card, location["code"], dq, location["space"], max(1, len(r.regions or [])),
                          fq != "none", space_only=location.get("space_only", False)),
             "special_scores": [s for s in codes["special_scores"] if s not in ("PSV", "GHR", "PHR")],
+            "validity": codes["validity"],
             "coder": codes.get("coder", "rule"),
             "overridden": bool(override),
         }

@@ -12,7 +12,7 @@ import logging
 import os
 from typing import Any
 
-from ..schema import CONTENTS, DETERMINANTS, SPECIAL_SCORES, CodeRequest, Codes, state_text
+from ..schema import CONTENTS, DETERMINANTS, SPECIAL_SCORES, VALIDITY, CodeRequest, Codes, state_text
 from .base import Coder, CoderUnavailable
 
 log = logging.getLogger(__name__)
@@ -36,6 +36,9 @@ Code only what the person actually said; do not infer determinants they did not 
 - contents: CS content codes, primary first.
 - special_scores: DV/INC/DR/FAB level 1 or 2, ALOG, CONTAM, AB, AG, COP, MOR, PER, CP.
 - fq_fallback: "u" if the object is easily seen in that area, "-" if it distorts the area; "none" if no form is used.
+- validity: "genuine" for any sincere attempt (typos, slang and broken English are fine, and so are odd or
+  morbid answers); "unserious" for jokes, memes, insults or trolling; "gibberish" for random text; "refusal"
+  for "idk"/"nothing"; "off_task" for sincere text that is not about what the blot looks like.
 - evidence: for each code you assign, the exact words from the response or inquiry it rests on.
 - confidence: your confidence in each code, 0 to 1.
 
@@ -52,6 +55,7 @@ OUTPUT_SCHEMA: dict[str, Any] = {
         "contents": {"type": "array", "items": {"type": "string", "enum": list(CONTENTS)}},
         "special_scores": {"type": "array", "items": {"type": "string", "enum": list(SPECIAL_SCORES)}},
         "fq_fallback": {"type": "string", "enum": ["u", "-", "none"]},
+        "validity": {"type": "string", "enum": list(VALIDITY)},
         "evidence": {
             "type": "array",
             "items": {
@@ -71,7 +75,7 @@ OUTPUT_SCHEMA: dict[str, Any] = {
             },
         },
     },
-    "required": ["dq", "determinants", "pair", "contents", "special_scores", "fq_fallback", "evidence",
+    "required": ["dq", "determinants", "pair", "contents", "special_scores", "fq_fallback", "validity", "evidence",
                  "confidence"],
     "additionalProperties": False,
 }
@@ -94,6 +98,7 @@ def parse_output(data: dict[str, Any]) -> Codes:
         contents=data["contents"] or ["Id"],
         special_scores=data["special_scores"],
         fq_fallback=None if fq in (None, "none") else fq,
+        validity=data.get("validity", "genuine"),
         evidence={e["code"]: e["span"] for e in data.get("evidence", [])},
         confidence={c["code"]: c["value"] for c in data.get("confidence", [])},
         coder="llm",

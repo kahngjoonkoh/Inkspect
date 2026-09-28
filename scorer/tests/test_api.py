@@ -2,11 +2,20 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
+from scorer import main
 from scorer.main import app
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def default_rule_coder(monkeypatch):
+    """Independent of the deployment's CODER setting (the running stack may use laya)."""
+    monkeypatch.setattr(main, "DEFAULT_CODER", "rule")
+    monkeypatch.setattr(main, "_coders", {})  # coders read LAYA_URL / API keys when first built
 
 REQUEST = {
     "card": 3, "orientation": "^", "verbatim": "two people dancing",

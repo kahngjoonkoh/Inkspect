@@ -24,6 +24,7 @@ from .laya_questions import (
     MOVEMENT_FAMILIES,
     SHADED_FAMILIES,
     SPECIAL_QUESTIONS,
+    VALIDITY_CHOICES,
     build_questions,
 )
 
@@ -80,6 +81,7 @@ def decode(answers: dict[str, Any], req: CodeRequest) -> Codes:
     confidence: dict[str, float] = {}
     evidence: dict[str, str] = {}
 
+    validity, confidence["validity"] = _choice(answers, "validity", VALIDITY_CHOICES, "genuine")
     dq, confidence["dq"] = _choice(answers, "dq", DQ_CHOICES, "ordinary")
 
     determinants: list[str] = []
@@ -141,4 +143,5 @@ def decode(answers: dict[str, Any], req: CodeRequest) -> Codes:
         fq_fallback, confidence["fq"] = _choice(answers, "fq_fallback", FQ_CHOICES, "unusual")
 
     return Codes(dq=dq, determinants=determinants, pair=pair, contents=contents, special_scores=special,
-                 fq_fallback=fq_fallback, evidence=evidence, confidence=confidence, coder="laya")
+                 fq_fallback=fq_fallback, validity=validity, evidence=evidence, confidence=confidence,
+                 coder="laya")

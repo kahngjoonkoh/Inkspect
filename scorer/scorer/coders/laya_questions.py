@@ -6,7 +6,7 @@ Laya (https://github.com/NandhaKishorM/laya) answers typed questions about a
 type, so each determinant family, content category and special score is its
 own yes/no question.
 
-This module has no dependencies so that `laya_server/convert_training.py`
+This module has no dependencies so that the training scripts (`scorer/training/`)
 can reuse it to turn reviewer overrides into fine-tuning records.
 """
 
@@ -19,6 +19,13 @@ DQ_CHOICES = {
     "ordinary": ("o", "a single object with a specific form"),
     "vague_synthesized": ("v/+", "two or more related objects, none with a specific form"),
     "vague": ("v", "an object with no specific form, like a cloud, blood or a stain"),
+}
+VALIDITY_CHOICES = {
+    "genuine": ("genuine", "a sincere attempt to say what the blot looks like; typos, slang and broken English are fine"),
+    "unserious": ("unserious", "a joke, meme, insult, provocation or trolling instead of a real answer"),
+    "gibberish": ("gibberish", "random letters, keyboard mashing or meaningless text"),
+    "refusal": ("refusal", "declines to answer, says nothing or only says they don't know"),
+    "off_task": ("off_task", "sincere text that is not about what the blot looks like (comments, questions, chat)"),
 }
 FQ_CHOICES = {
     "unusual": ("u", "the object is easy to see in that area, though uncommon"),
@@ -96,6 +103,7 @@ def _noul(instructions: str) -> dict[str, Any]:
 
 def build_questions() -> dict[str, dict[str, Any]]:
     q: dict[str, dict[str, Any]] = {
+        "validity": _choice("Is this a sincere answer to 'what might this inkblot be'?", VALIDITY_CHOICES),
         "dq": _choice("Which Developmental Quality fits the response?", DQ_CHOICES),
         "fq_fallback": _choice("How well does the object fit the shape of the area?", FQ_CHOICES),
         "pair": _noul("Are two identical objects seen, one on each side of the card (not a reflection)?"),
@@ -115,9 +123,17 @@ def build_questions() -> dict[str, dict[str, Any]]:
 
 
 def labels_to_answers(labels: dict[str, Any]) -> dict[str, Any]:
-    """Invert decoding: Codes-shaped labels -> Laya ground-truth answers (for fine-tuning)."""
+    """Invert decoding: Codes-shaped labels -> Laya ground-truth answers (for fine-tuning).
+
+    A response that is not a sincere answer is only labelled for `validity`: its CS codes
+    are meaningless, so training on them would teach noise.
+    """
+    validity = labels.get("validity", "genuine")
+    if validity != "genuine":
+        return {"validity": validity}
     dets = set(labels.get("determinants", []))
     answers: dict[str, Any] = {
+        "validity": "genuine",
         "dq": next(k for k, (code, _) in DQ_CHOICES.items() if code == labels.get("dq", "o")),
         "pair": bool(labels.get("pair", False)),
         "form_dimension": "FD" in dets,

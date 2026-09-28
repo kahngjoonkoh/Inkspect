@@ -121,7 +121,21 @@ def test_full_session_to_results(client, scorer, admin):
     assert client.put(f"/api/admin/responses/{rid}/codes", headers=admin,
                       json={"location_label": "Q9"}).status_code == 400
     export = client.get("/api/admin/export/training.jsonl", headers=admin).text.strip().splitlines()
-    assert len(export) == 1 and '"source": "override"' in export[0] and '"Ma"' in export[0]
+    assert len(export) == 1
+    line = __import__("json").loads(export[0])
+    assert line["source"] == "override" and line["labels"]["determinants"] == ["Ma"]
+    assert line["labels"]["fq_fallback"] == "u" and line["request"]["location"]["label"] == "D4"
+    assert line["request"]["verbatim"] and set(line["request"]) >= {"card", "orientation", "inquiry", "followups"}
+
+    # A response marked unserious stays in the protocol but leaves the summary.
+    r_before = next(i["value"] for s in changed["summary"]["sections"] if s["title"] == "Core"
+                    for i in s["items"] if i["label"] == "R")
+    flagged = client.put(f"/api/admin/responses/{rid}/codes", headers=admin, json={"validity": "unserious"}).json()
+    r_after = next(i["value"] for s in flagged["summary"]["sections"] if s["title"] == "Core"
+                   for i in s["items"] if i["label"] == "R")
+    assert int(r_after) == int(r_before) - 1 and len(flagged["protocol"]) == 20
+    assert flagged["protocol"][0]["validity"] == "unserious"
+    assert any("sincere" in w for w in flagged["warnings"])
     reverted = client.delete(f"/api/admin/responses/{rid}/codes", headers=admin).json()
     assert not reverted["protocol"][0]["overridden"]
 

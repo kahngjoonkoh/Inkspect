@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api, errorMessage } from '../api/client'
-import type { CodeOverride, ProtocolRow, Results } from '../api/types'
+import type { CodeOverride, ProtocolRow, Results, Validity } from '../api/types'
 import { InterpretationView, ProtocolTable, ResultsHeader, SummaryView } from '../components/ResultsView'
 
 const DQ = ['+', 'o', 'v/+', 'v']
 const FQ = ['', '+', 'o', 'u', '-']
+const VALIDITY: Validity[] = ['genuine', 'unserious', 'gibberish', 'refusal', 'off_task']
 
 const splitList = (s: string): string[] =>
   s
@@ -90,6 +91,7 @@ function RowEditor({ row, onResults, onError }: RowProps) {
   const [pair, setPair] = useState(row.pair)
   const [contents, setContents] = useState(row.contents.join(', '))
   const [special, setSpecial] = useState(row.special_scores.join(', '))
+  const [validity, setValidity] = useState<Validity>(row.validity)
   const [note, setNote] = useState(row.override?.note ?? '')
   const [busy, setBusy] = useState(false)
 
@@ -101,6 +103,7 @@ function RowEditor({ row, onResults, onError }: RowProps) {
       pair,
       contents: splitList(contents),
       special_scores: splitList(special),
+      validity,
       fq: fq || null,
       note: note.trim() || undefined,
     }
@@ -175,6 +178,16 @@ function RowEditor({ row, onResults, onError }: RowProps) {
         <label className="field">
           <span>Special scores</span>
           <input value={special} onChange={(e) => setSpecial(e.target.value)} placeholder="COP, MOR" />
+        </label>
+        <label className="field">
+          <span>Validity</span>
+          <select value={validity} onChange={(e) => setValidity(e.target.value as Validity)}>
+            {VALIDITY.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="field wide-field">
           <span>Note</span>

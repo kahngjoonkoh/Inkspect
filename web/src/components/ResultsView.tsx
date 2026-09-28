@@ -23,14 +23,24 @@ export function ProtocolTable({ rows, renderExtra }: { rows: ProtocolRow[]; rend
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.response_id} className={r.overridden ? 'overridden' : undefined}>
+            <tr
+              key={r.response_id}
+              className={[r.overridden && 'overridden', r.validity !== 'genuine' && 'invalid'].filter(Boolean).join(' ') || undefined}
+            >
               <td>
                 {r.card_roman}
                 {r.orientation !== '^' && <span className="muted"> {r.orientation}</span>}
               </td>
               <td>{r.number}</td>
               <td className="verbatim-cell">
-                <div>{r.verbatim}</div>
+                <div>
+                  {r.verbatim}
+                  {r.validity !== 'genuine' && (
+                    <span className="badge on" title="Not a sincere answer; left out of the summary">
+                      {r.validity.replace('_', '-')}
+                    </span>
+                  )}
+                </div>
                 {r.inquiry && <div className="muted small">{r.inquiry}</div>}
                 <code className="score-line">{r.score_line}</code>
                 {renderExtra?.(r)}

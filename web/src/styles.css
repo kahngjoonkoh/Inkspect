@@ -523,6 +523,9 @@ tr.overridden td {
   margin-left: 0.4rem;
   color: var(--muted);
 }
+tr.invalid td {
+  color: var(--muted);
+}
 .badge.on {
   border-color: var(--warn-border);
   color: var(--text);
