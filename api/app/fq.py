@@ -4,7 +4,6 @@ Only an entry at the same card and location gives an FQ value. An entry for the
 same object elsewhere on the card still gives the content code as a hint.
 """
 
-import re
 import sqlite3
 from dataclasses import dataclass
 from functools import lru_cache
@@ -63,14 +62,20 @@ class FQMatch:
                 "location_match": self.location_match}
 
 
-def lookup(card: int, location_label: str, orientation: str, text: str,
+def lookup(card: int, location_label: str, orientation: str, verbatim: str, inquiry: str = "",
            table: tuple[FQEntry, ...] | None = None) -> FQMatch | None:
-    """Best table entry for the objects named in `text` (response + inquiry)."""
+    """Best table entry for the object named in the response.
+
+    The object must be named in the response itself. Parts mentioned only in
+    the inquiry ("here is the head") are not the scored object; the inquiry
+    only helps choose between qualified entries.
+    """
     table = table if table is not None else load_table()
-    vocab = word_set(text)
+    named = word_set(verbatim)
+    vocab = named | word_set(inquiry)
     best, best_score = None, 0.0
     for e in table:
-        if e.card != card or not all(h in vocab for h in e.head):
+        if e.card != card or not all(h in named for h in e.head):
             continue
         score = 10.0 * len(e.head)
         loc_match = e.loc == location_label
@@ -93,7 +98,3 @@ _PART_WORDS = {"head", "ear", "eye", "wing", "leg", "arm", "hand", "foot", "tail
 def articulation(text: str) -> int:
     """Number of distinct object parts named — used for the FQ '+' upgrade."""
     return len(set(words(text)) & _PART_WORDS)
-
-
-def is_location(text: str) -> bool:
-    return bool(re.fullmatch(r"(W|D|Dd)S?\d*", text))

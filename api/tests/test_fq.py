@@ -30,7 +30,7 @@ def test_same_object_at_a_listed_other_location_prefers_it():
 
 
 def test_qualifier_breaks_ties():
-    m = lookup(1, "W", "^", "an airplane seen from the front view")
+    m = lookup(1, "W", "^", "an airplane", "seen from the front view")
     assert m.item == "Airplane (Front view)"
 
 
@@ -41,3 +41,10 @@ def test_unknown_object_returns_none():
 def test_articulation_counts_parts():
     assert articulation("the head, the wings, the legs and the tail") == 4
     assert articulation("just a shape") == 0
+
+
+def test_parts_named_only_in_the_inquiry_are_not_the_object():
+    m = lookup(7, "D1", "^", "Two girls looking at each other", "here is the head and body")
+    assert m is not None and m.content == "H"
+    totem = lookup(6, "D1", "^", "A totem pole", "here is the head and body")
+    assert totem is None or totem.item.lower().startswith("totem")

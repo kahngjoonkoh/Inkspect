@@ -59,7 +59,7 @@ def score_response(db: Session, r: Response, scorer: ScorerClient) -> None:
     text = inquiry_text(r.explanation, r.followups)
     region_map = get_map(db, r.card)
     r.location = map_location(region_map, r.regions or [], r.whole_card, mentions_space(r.verbatim, text))
-    match = fq_lookup.lookup(r.card, r.location["label"], r.orientation, f"{r.verbatim} {text}")
+    match = fq_lookup.lookup(r.card, r.location["label"], r.orientation, r.verbatim, text)
     r.fq_match = match.as_dict() if match else None
     r.codes = scorer.code({
         "card": r.card,
