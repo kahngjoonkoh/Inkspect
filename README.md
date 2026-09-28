@@ -72,19 +72,18 @@ Set `CODER` in `.env` and run `docker compose up -d scorer`.
 |---------|-------|-------|
 | `rule` (default) | nothing | Lexicon and heuristic coder. It is deterministic, and it is a baseline: expect it to miss subtle determinants and special scores. |
 | `llm` | `ANTHROPIC_API_KEY` | Claude with a JSON-schema-constrained output. `LLM_MODEL` overrides the default model. |
-| `laya` | `docker compose --profile laya up -d` | A Laya checkpoint served by `scorer/laya_server`. Each code family becomes a typed decision (choice or yes/no). Set `LAYA_CHECKPOINT` to your fine-tuned checkpoint. |
+| `laya` | a fine-tuned checkpoint in `models/`, plus `COMPOSE_PROFILES=laya` | The local fine-tuned Laya decision model. It handles typos and slang and runs offline. Train it and switch to it with `scorer/training/README.md`. |
+
+Every coder also judges **validity**: whether an answer is a sincere attempt, or unserious, gibberish, a refusal or off-task. Non-genuine answers stay in the protocol with a badge, but they are left out of the structural summary. A record where a quarter or more of the answers aren't sincere is flagged as not interpretable. Reviewers can change validity on the review page.
 
 If the chosen coder isn't available (no key, or the model server is unreachable), the scorer falls back to `rule`. The protocol row records which coder produced each code.
 
-### Training data for the Laya coder
+### Training the Laya coder
 
-Coded Rorschach answers are rare, so collect them through the review page:
-
-1. A reviewer corrects codes at `/admin/review/<session>`. Every correction is stored next to the coder's original output.
-2. `/admin` → **Download training.jsonl** exports every corrected response as `{"state", "labels", "source"}`.
-3. `scorer/laya_server/convert_training.py` turns that file into Laya fine-tuning data. See `scorer/laya_server/README.md`.
-
-A practical way to bootstrap: run with `CODER=llm`, have a trained examiner correct the codes, then fine-tune Laya on the corrections.
+See `scorer/training/README.md`. In short:
+- `scorer/training/train.sh v1` fine-tunes Laya on the bundled synthetic silver-label set.
+- `scorer/training/train.sh v2 training.jsonl` adds reviewer corrections exported from `/admin`.
+- Each run writes a report comparing the model with the rule coder, both on held-out synthetic data and on a real examiner-coded protocol.
 
 ## Region maps
 

@@ -1,0 +1,10 @@
+# Run the laya model server on an NVIDIA GPU:
+#   docker compose -f compose.yaml -f compose.gpu.yaml --profile laya up -d --build
+services:
+  laya:
+    build:
+      args:
+        TORCH_INDEX: cu128
+    environment:
+      LAYA_DEVICE: cuda
+    gpus: all

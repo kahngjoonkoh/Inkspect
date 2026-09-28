@@ -42,48 +42,14 @@ Any yes/no answer at or above 0.5 counts as yes.
 
 ## Running it
 
-```bash
-# LAYA_URL=http://laya:8100 and CODER=laya tell the scorer to use it
-docker compose --profile laya up --build
-```
+This server is the `laya` service in `compose.yaml`. Enabling it and training the checkpoint it
+serves are covered in [`scorer/training/README.md`](../training/README.md).
 
-| Environment variable | Default | Meaning |
+| Environment variable | Default (compose) | Meaning |
 |---|---|---|
-| `LAYA_CHECKPOINT` | `convaiinnovations/laya` | Hugging Face repo id, or a local path to a fine-tuned checkpoint |
-| `LAYA_SUBFOLDER`  | `typed-decisions` | subfolder inside the repo (leave empty for a local checkpoint) |
-| `LAYA_DEVICE`     | `cpu` | `cuda` if a GPU is passed through |
+| `LAYA_CHECKPOINT` | `/models/inkspect-laya-v1` | local checkpoint directory, or a Hugging Face repo id |
+| `LAYA_SUBFOLDER`  | empty | subfolder inside a Hugging Face repo (`typed-decisions` for the public base model) |
+| `LAYA_DEVICE`     | `cpu` (`cuda` with `compose.gpu.yaml`) | about 8 s per response on CPU, about 0.2 s on an RTX 3090 |
 
-The scorer side reads three settings:
-- `LAYA_URL`: where this server is.
-- `LAYA_MODEL`: sent as the request's `model`. The default is `typed-decisions`, which only matters if you point `LAYA_URL` at a stock `laya-serve`.
-- `LAYA_API_KEY`: optional; sent as a bearer token.
-
-If the server can't be reached, or it returns an error, the scorer falls back
-to the rule coder and marks the result `"coder": "rule"`.
-
-You can also skip this image and run Laya's own server:
-`pip install "laya[serve]" && laya-serve` listens on port 8000 with the same endpoint.
-
-## Fine-tuning on reviewer corrections
-
-The base checkpoints don't know the Exner CS. On Laya's own typed-decision
-benchmark, the base checkpoints score *below* the majority-class baseline, and
-only the fine-tuned checkpoint is useful. You need labelled data:
-
-1. Reviewers correct codes on the api's review page. Every override is stored.
-2. Export the corrections:
-   `curl -H "X-Admin-Token: $ADMIN_TOKEN" localhost:8080/api/admin/export/training.jsonl > training.jsonl`.
-   Each line is `{"state": str, "labels": Codes, "source": "override"}`.
-3. Convert them to Laya's fine-tuning format. The script needs only the standard library:
-   ```bash
-   python scorer/laya_server/convert_training.py training.jsonl > laya_train.jsonl
-   ```
-   Each output line is `{"state", "questions", "answers"}`:
-   - For `choice` questions, the answer is the chosen criteria key.
-   - For `noul` questions, the answer is a boolean.
-   - The questions are the same ones `LayaCoder` asks at inference time.
-4. Fine-tune with Laya's `notebooks/laya_finetune_typed_decisions_2xT4_kaggle.ipynb`.
-5. Point `LAYA_CHECKPOINT` at the result, and set `LAYA_SUBFOLDER=` (empty).
-
-Reviewed protocols are sensitive clinical data. Keep the export and the
-fine-tuned weights on infrastructure you control.
+The scorer reaches it at `LAYA_URL` (default `http://laya:8100`). If it can't be reached, the scorer
+falls back to the rule coder and marks the result `"coder": "rule"`.

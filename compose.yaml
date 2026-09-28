@@ -64,15 +64,19 @@ services:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
     restart: unless-stopped
 
-  # Local Laya decision model. Start with: docker compose --profile laya up -d
-  # and set CODER=laya (the scorer reaches it at LAYA_URL).
+  # Local Laya decision model (the fine-tuned Inkspect coder). Enable with COMPOSE_PROFILES=laya and
+  # CODER=laya in .env; see scorer/training/README.md. For a GPU, also pass -f compose.gpu.yaml.
   laya:
     profiles: ["laya"]
-    build: ./scorer/laya_server
+    build:
+      context: ./scorer/laya_server
     environment:
-      LAYA_CHECKPOINT: ${LAYA_CHECKPOINT:-}
+      LAYA_CHECKPOINT: ${LAYA_CHECKPOINT:-/models/inkspect-laya-v1}
+      LAYA_SUBFOLDER: ${LAYA_SUBFOLDER:-}
+      LAYA_DEVICE: ${LAYA_DEVICE:-cpu}
     volumes:
-      - laya-cache:/root/.cache/huggingface
+      - ./models:/models:ro
+      - laya-cache:/cache/huggingface
     restart: unless-stopped
 
   # End-to-end test. Run with: docker compose --profile e2e run --rm e2e
