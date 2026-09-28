@@ -1,0 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+laya
+fastapi>=0.141,<1
+uvicorn[standard]>=0.54,<1
