@@ -106,6 +106,7 @@ def test_full_session_to_results(client, scorer, admin):
     assert any("placeholder" in w for w in res["warnings"])
     assert {s["title"] for s in res["summary"]["sections"]} >= {"Core", "Affect", "Mediation"}
     assert len(res["summary"]["constellations"]) == 6 and res["interpretation"]["clusters"]
+    assert res["overview"]["available"] and len(res["overview"]["bands"]) == 6
     assert client.get(f"/api/sessions/{sid}/results").json() == res
 
     # Reviewer override -> recomputed summary + training export.

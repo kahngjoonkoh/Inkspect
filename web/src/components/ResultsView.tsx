@@ -1,4 +1,4 @@
-import type { ProtocolRow, Results } from '../api/types'
+import type { OverviewBand, ProtocolRow, Results } from '../api/types'
 import Disclaimer from './Disclaimer'
 
 export function ProtocolTable({ rows, renderExtra }: { rows: ProtocolRow[]; renderExtra?: (row: ProtocolRow) => React.ReactNode }) {
@@ -170,5 +170,58 @@ export function ResultsHeader({ results }: { results: Results }) {
         </ul>
       )}
     </>
+  )
+}
+
+const LEVEL_LABEL = { lower: 'Lower', typical: 'Typical', higher: 'Higher' } as const
+const LEVEL_SENTENCE = {
+  lower: 'Lower than most people.',
+  typical: 'About the same as most people.',
+  higher: 'Higher than most people.',
+} as const
+
+function BandScale({ level }: { level: OverviewBand['level'] }) {
+  return (
+    <div className="band-scale" aria-hidden="true">
+      {(['lower', 'typical', 'higher'] as const).map((l) => (
+        <span key={l} className={`band-seg ${l}${l === level ? ' on' : ''}`}>
+          {LEVEL_LABEL[l]}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+export function OverviewView({ results }: { results: Results }) {
+  const { overview } = results
+  if (!overview.available) {
+    return (
+      <section className="block" data-testid="results-overview">
+        <p>{overview.message}</p>
+      </section>
+    )
+  }
+  return (
+    <section className="block" data-testid="results-overview">
+      <p className="muted">
+        Each band compares your answers with those of most adults. Neither end is better or worse: they
+        describe different styles.
+      </p>
+      <div className="bands">
+        {overview.bands.map((b) => (
+          <article className="band" key={b.key} data-testid="overview-band">
+            <h3>{b.title}</h3>
+            <BandScale level={b.level} />
+            <p className="band-level">
+              <strong>{LEVEL_SENTENCE[b.level]}</strong>{' '}
+              <span className="muted small">
+                You: {b.value} {b.unit} · typical: {b.typical}
+              </span>
+            </p>
+            <p>{b.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }

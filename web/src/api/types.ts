@@ -143,10 +143,27 @@ export interface Interpretation {
   caveats: string[]
 }
 
+export interface OverviewBand {
+  key: string
+  title: string
+  level: 'lower' | 'typical' | 'higher'
+  value: string
+  unit: string
+  typical: string
+  text: string
+}
+
+export interface Overview {
+  available: boolean
+  message: string | null
+  bands: OverviewBand[]
+}
+
 export interface Results {
   session_id: string
   valid: boolean
   warnings: string[]
+  overview: Overview
   protocol: ProtocolRow[]
   summary: Summary
   interpretation: Interpretation

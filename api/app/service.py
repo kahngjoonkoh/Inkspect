@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from . import fq as fq_lookup
 from .interpretation import interpret
+from .overview import overview
 from .location import map_location, mentions_space
 from .models import ExamSession, Response
 from .regions import get_map
@@ -117,6 +118,7 @@ def results(db: Session, session: ExamSession, include_raw: bool = False) -> dic
         "valid": variables["valid"],
         "warnings": warnings,
         "protocol": rows,
+        "overview": overview(variables),
         "summary": summary,
         "interpretation": interpret(variables, summary["constellations"], placeholder),
     }
