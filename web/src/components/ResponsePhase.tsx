@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, errorMessage } from '../api/client'
 import type { NextResult, Orientation, SessionState } from '../api/types'
-import { cardMeta, ORIENTATION_DEGREES, ORIENTATION_LABEL, ORIENTATIONS, roman } from '../cards'
+import { cardMeta, ORIENTATIONS, roman } from '../cards'
 import ExaminerMessage from './ExaminerMessage'
+import TurnableCard from './TurnableCard'
 
 interface Props {
   state: SessionState
@@ -12,7 +13,9 @@ interface Props {
 export default function ResponsePhase({ state, onState }: Props) {
   const card = state.current_card
   const meta = cardMeta(card)
-  const [orientation, setOrientation] = useState<Orientation>('^')
+  // Quarter turns from upright, reported by TurnableCard when a drag snaps (may be negative).
+  const [turns, setTurns] = useState(0)
+  const orientation: Orientation = ORIENTATIONS[((turns % 4) + 4) % 4]
   const [text, setText] = useState('')
   const [message, setMessage] = useState<string | null>(null)
   const [prominent, setProminent] = useState(false)
@@ -24,7 +27,7 @@ export default function ResponsePhase({ state, onState }: Props) {
   // Reset per-card UI state when the card changes.
   if (prevCard !== card) {
     setPrevCard(card)
-    setOrientation('^')
+    setTurns(0)
     setText('')
   }
 
@@ -117,31 +120,12 @@ export default function ResponsePhase({ state, onState }: Props) {
         </span>
       </div>
       <p className="prompt">What might this be?</p>
-      <div className="card-stage">
-        <img
-          src={meta.image}
-          alt={`Inkblot card ${roman(card)}`}
-          className="card-image"
-          style={{ transform: `rotate(${ORIENTATION_DEGREES[orientation]}deg)` }}
-          draggable={false}
-        />
-      </div>
-      <div className="rotate-row" role="group" aria-label="Turn the card">
-        {ORIENTATIONS.map((o) => (
-          <button
-            key={o}
-            className={`chip${orientation === o ? ' active' : ''}`}
-            aria-pressed={orientation === o}
-            onClick={() => setOrientation(o)}
-            title={ORIENTATION_LABEL[o]}
-          >
-            <span aria-hidden="true" style={{ display: 'inline-block', transform: `rotate(${ORIENTATION_DEGREES[o]}deg)` }}>
-              ↑
-            </span>{' '}
-            {ORIENTATION_LABEL[o]}
-          </button>
-        ))}
-      </div>
+      <TurnableCard
+        key={`${card}-${state.administration}`}
+        image={meta.image}
+        label={`Inkblot card ${roman(card)}`}
+        onTurn={setTurns}
+      />
 
       <ExaminerMessage message={message} prominent={prominent} />
 
@@ -169,9 +153,6 @@ export default function ResponsePhase({ state, onState }: Props) {
         <ul className="response-list">
           {cardResponses.map((r) => (
             <li key={r.id}>
-              <span className="orientation-tag" title={ORIENTATION_LABEL[r.orientation]}>
-                {r.orientation}
-              </span>
               <span className="verbatim">{r.verbatim}</span>
               <button className="link" onClick={() => remove(r.id)} disabled={busy} aria-label={`Remove “${r.verbatim}”`}>
                 Remove

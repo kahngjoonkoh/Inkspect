@@ -32,7 +32,7 @@ export default function Landing() {
       </p>
       <ol className="steps">
         <li>
-          <strong>Responses.</strong> Look at each card and type everything it could be. You can turn the card.
+          <strong>Responses.</strong> Look at each card and type everything it could be.
         </li>
         <li>
           <strong>Inquiry.</strong> We go back through your answers. For each one, draw around the part of the blot

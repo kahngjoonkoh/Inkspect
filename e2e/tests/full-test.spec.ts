@@ -32,6 +32,19 @@ async function drawLasso(page: Page, cx = 0.5, cy = 0.5, rx = 0.3, ry = 0.3) {
   await page.mouse.up()
 }
 
+async function dragAround(page: Page, degrees: number) {
+  const box = await page.getByTestId('response-card').boundingBox()
+  if (!box) throw new Error('card has no size')
+  const cx = box.x + box.width / 2
+  const cy = box.y + box.height / 2
+  const r = Math.min(box.width, box.height) * 0.35
+  const at = (deg: number) => ({ x: cx + r * Math.cos((deg * Math.PI) / 180), y: cy + r * Math.sin((deg * Math.PI) / 180) })
+  await page.mouse.move(at(0).x, at(0).y)
+  await page.mouse.down()
+  for (let d = 10; d <= degrees; d += 10) await page.mouse.move(at(d).x, at(d).y)
+  await page.mouse.up()
+}
+
 test('a full test: 10 cards, inquiry with drawn areas, results with a structural summary', async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('consent-checkbox').check()
@@ -42,7 +55,16 @@ test('a full test: 10 cards, inquiry with drawn areas, results with a structural
   // ---- Response phase
   for (let card = 1; card <= 10; card++) {
     await expect(page.getByTestId('card-number')).toHaveText(String(card))
-    if (card === 5) await page.getByRole('button', { name: /Upside down/ }).click()
+    if (card === 5) {
+      // Turning is never mentioned on the page. A click must not turn the card; a drag
+      // around it does, snapping to quarter turns. Drag half a circle: upside down.
+      await expect(page.getByText(/turn/i)).toHaveCount(0)
+      const cardImage = page.getByTestId('response-card').locator('img')
+      await page.getByTestId('response-card').click()
+      await expect(cardImage).toHaveAttribute('style', /rotate\(0deg\)/)
+      await dragAround(page, 180)
+      await expect(cardImage).toHaveAttribute('style', /rotate\(180deg\)/)
+    }
     for (const text of RESPONSES[card]) {
       await page.getByTestId('response-input').fill(text)
       await page.getByTestId('add-response').click()
@@ -57,6 +79,9 @@ test('a full test: 10 cards, inquiry with drawn areas, results with a structural
   for (let i = 0; i < total; i++) {
     await expect(page.getByText(`Answer ${i + 1} of ${total}`)).toBeVisible()
     await expect(page.getByTestId('card-canvas')).toBeVisible()
+    if ((await page.getByTestId('card-number').textContent()) === '5') {
+      await expect(page.getByText(/upside down/i)).toBeVisible()
+    }
     if (i === 0) {
       await page.getByTestId('whole-card-toggle').check()
     } else {
@@ -91,6 +116,10 @@ test('a full test: 10 cards, inquiry with drawn areas, results with a structural
 
   // ---- Results
   await expect(page).toHaveURL(/\/results\//)
+  // Overview tab first: plain-language bands.
+  await expect(page.getByTestId('results-overview')).toBeVisible()
+  await expect(page.getByTestId('overview-band')).toHaveCount(6)
+  await page.getByRole('tab', { name: 'Professional' }).click()
   const summary = page.getByTestId('results-summary')
   await expect(summary).toContainText('Structural Summary')
   await expect(summary).toContainText('EB')
