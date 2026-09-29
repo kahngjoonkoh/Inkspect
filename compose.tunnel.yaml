@@ -1,0 +1,13 @@
+# Put the website on the network your Cloudflare Tunnel container (cloudflared) uses, so the
+# tunnel can reach it as http://inkspect-web:8080 (nginx also listens on 80). Add to COMPOSE_FILE in .env, e.g.
+#   COMPOSE_FILE=compose.yaml:compose.gpu.yaml:compose.tunnel.yaml
+#   TUNNEL_NETWORK=public_proxy
+services:
+  web:
+    container_name: ${WEB_CONTAINER_NAME:-inkspect-web}
+    networks: [default, tunnel]
+
+networks:
+  tunnel:
+    name: ${TUNNEL_NETWORK:-public_proxy}
+    external: true
