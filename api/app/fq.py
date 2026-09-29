@@ -1,9 +1,10 @@
-"""Form Quality lookup in the Exner FQ table (data/fq_tables.db).
+"""Form Quality lookup in the Exner FQ table (data/fq_tables.db, not in git).
 
 Only an entry at the same card and location gives an FQ value. An entry for the
 same object elsewhere on the card still gives the content code as a hint.
 """
 
+import logging
 import sqlite3
 from dataclasses import dataclass
 from functools import lru_cache
@@ -11,6 +12,8 @@ from pathlib import Path
 
 from .config import settings
 from .text import word_set, words
+
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -31,6 +34,9 @@ def _orientation(v: str | None) -> str:
 
 @lru_cache(maxsize=2)
 def load_table(path: Path = settings.fq_db_path) -> tuple[FQEntry, ...]:
+    if not path.is_file():
+        log.warning("No FQ table at %s; FQ falls back to the coder's u/- estimate", path)
+        return ()
     con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
     try:
         rows = con.execute("SELECT Card, Loc, v, Item, Cont, FQ FROM FQ_tables").fetchall()

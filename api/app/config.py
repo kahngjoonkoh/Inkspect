@@ -18,7 +18,8 @@ def load_settings() -> Settings:
         scorer_url=os.environ.get("SCORER_URL", "http://scorer:8000"),
         admin_token=os.environ.get("ADMIN_TOKEN", "dev-admin"),
         regions_dir=Path(os.environ.get("REGIONS_DIR", Path(__file__).resolve().parents[2] / "regions")),
-        fq_db_path=Path(__file__).resolve().parent / "data" / "fq_tables.db",
+        # The Exner FQ table is copyrighted, so it is not in git: put your own copy here or set FQ_DB_PATH.
+        fq_db_path=Path(os.environ.get("FQ_DB_PATH", Path(__file__).resolve().parent / "data" / "fq_tables.db")),
     )
 
 

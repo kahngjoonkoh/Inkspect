@@ -1,4 +1,4 @@
-"""Structural summary math, checked by hand against the coded protocol in fixtures/example_protocol.txt."""
+"""Structural summary math, checked by hand against an 18-response coded record."""
 
 import pytest
 
@@ -13,7 +13,7 @@ def row(card, loc, num, dq, dets, fq, contents, pair=False, popular=False, z=Non
             "z": z, "special_scores": list(specials)}
 
 
-# The 18 responses of the example protocol (the typo "m'p" on card VI read as "mp").
+# 18 coded responses (score lines only).
 EXAMPLE = [
     row(1, "W", None, "o", ["FMp"], "o", ["A"], popular=True, z=1.0),
     row(1, "W", None, "o", ["F"], "-", ["A"], z=1.0),

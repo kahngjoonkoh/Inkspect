@@ -2,10 +2,10 @@
 
 Inputs (all in the record format of AUTHORING.md):
   synthetic/*.jsonl         silver labels written for bootstrapping
-  real/*.jsonl              examiner-coded real responses: always held out as the test set
+  real/*.jsonl              examiner-coded real responses (not in git): always held out as the test set
   --overrides FILE          optional: the api's /api/admin/export/training.jsonl (real, reviewer-corrected)
 
-Outputs (in --out): train.jsonl, val.jsonl, test.jsonl. Each line:
+Outputs (in --out): train.jsonl, val.jsonl, and test.jsonl when real/ has records. Each line:
   {"id", "group", "source", "request": <scorer CodeRequest JSON>, "labels": {...}}
 
 The split is by record, so a typo variant never lands on the other side of its original.
@@ -166,8 +166,9 @@ def main() -> None:
                 out.append(base | {"id": f"{rec['id']}~{k + 1}", "request": req})
         return out
 
-    splits = {"train": rows(train, "synthetic", args.noisy_copies), "val": rows(val, "synthetic"),
-              "test": rows(real, "real")}
+    splits = {"train": rows(train, "synthetic", args.noisy_copies), "val": rows(val, "synthetic")}
+    if real:
+        splits["test"] = rows(real, "real")
     if args.overrides:
         # Real reviewer data goes into training, with a slice held out for validation.
         overrides = load_overrides(args.overrides)

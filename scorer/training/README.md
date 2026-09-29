@@ -18,7 +18,7 @@ The questions are defined in `scorer/coders/laya_questions.py`.
 | Source | Where | Used for |
 |---|---|---|
 | Synthetic silver labels | `synthetic/*.jsonl` | Bootstrapping, until real data exists |
-| Real examiner-coded responses | `real/*.jsonl` | Always the held-out **test** set |
+| Real examiner-coded responses | `real/*.jsonl` (git-ignored) | Always the held-out **test** set |
 | Reviewer corrections from real users | `/admin` → **Download training.jsonl** | Training and validation, replacing synthetic data over time |
 
 **Synthetic records.** Claude wrote these following `AUTHORING.md`:
@@ -27,7 +27,7 @@ The questions are defined in `scorer/coders/laya_questions.py`.
 
 Every record passes `validate.py`. Treat them as **silver labels**: they follow the CS rules but no trained examiner checked them.
 
-**Real test set.** `real/example_protocol.jsonl` holds the 18 responses of a real examiner-coded protocol (`api/tests/fixtures/example_protocol.txt`). It is never trained on. The rule coder was calibrated on these same responses, so its scores there are optimistic.
+**Real test set.** Real responses are personal data, so `real/` is git-ignored and starts empty. Put examiner-coded records there to get a `test` split; they are never trained on. Without them, only the synthetic `val` split is evaluated.
 
 ## Train
 

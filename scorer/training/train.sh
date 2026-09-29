@@ -24,6 +24,9 @@ if [ -n "$OVERRIDES" ]; then
 fi
 $RUN python build_dataset.py --out /work/models/laya-data-$VERSION $EXTRA
 $RUN python finetune.py --data /work/models/laya-data-$VERSION --base "$BASE" --out /work/models/inkspect-laya-$VERSION
-$RUN python evaluate.py --data /work/models/laya-data-$VERSION/val.jsonl /work/models/laya-data-$VERSION/test.jsonl \
+DATA=/work/models/laya-data-$VERSION
+EVAL="$DATA/val.jsonl"
+[ -f "$ROOT/models/laya-data-$VERSION/test.jsonl" ] && EVAL="$EVAL $DATA/test.jsonl"
+$RUN python evaluate.py --data $EVAL \
   --checkpoint "base=$BASE" --checkpoint "fine-tuned=/work/models/inkspect-laya-$VERSION" \
   --out /work/models/laya-data-$VERSION/report.json | tee "$ROOT/models/laya-data-$VERSION/report.md"

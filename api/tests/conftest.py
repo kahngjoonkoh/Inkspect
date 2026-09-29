@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,6 +11,10 @@ from app.db import Base, get_db
 from app.main import create_app
 from app.models import RegionMap
 from app.scorer_client import get_scorer
+
+
+# The FQ table is not in git; tests that need it run only where a local copy exists.
+needs_fq_table = pytest.mark.skipif(not settings.fq_db_path.is_file(), reason="no local copy of the Exner FQ table")
 
 
 def square(x0, y0, x1, y1):
@@ -91,5 +94,3 @@ def client(scorer):
 def admin():
     return {"X-Admin-Token": settings.admin_token}
 
-
-FIXTURES = Path(__file__).parent / "fixtures"

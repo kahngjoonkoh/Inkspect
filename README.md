@@ -57,7 +57,7 @@ Only the parts that need language understanding go through the coder. Everything
 | CS code | Method |
 |---------|--------|
 | Location (W, D#, Dd#, S) | The drawn polygons are rasterised and compared with the card's region map by coverage and F1 overlap (`api/app/location.py`). S is coded only when the response mentions the white space. |
-| Form Quality | Looked up in the Exner FQ table (`api/app/data/fq_tables.db`, 5,128 entries) by card, location, orientation and object (`api/app/fq.py`). With no entry for that location, the coder's u/− estimate is used. `+` means an ordinary (o) response with four or more named parts. |
+| Form Quality | Looked up in the Exner FQ table (`api/app/data/fq_tables.db`, 5,128 entries, not in git: see below) by card, location, orientation and object (`api/app/fq.py`). With no entry for that location, the coder's u/− estimate is used. `+` means an ordinary (o) response with four or more named parts. |
 | Popular, Z | CS tables (`api/app/tables.py`). One drawn area counts as adjacent (ZA); several count as distant (ZD). |
 | PSV, GHR/PHR | Computed from the whole record (`api/app/scoring.py`). |
 | DQ, determinants (with a/p), (2), contents, special scores | The scorer's `Coder` |
@@ -120,6 +120,6 @@ To work on the frontend with hot reload, run `cd web && npm run dev`. It proxies
 
 - **Code:** GNU GPL v3 (`LICENSE`).
 - **Inkblot images:** Hermann Rorschach's plates were published in 1921 and are in the public domain in many jurisdictions. Hogrefe, the test's publisher, still sells the official cards, and many professional bodies object to publishing them. Check your jurisdiction and professional code before making the site public.
-- **Comprehensive System material:** the FQ table, the Popular list, Z values, Zest, the constellation criteria and the interpretive search strategy come from John E. Exner Jr.'s published CS works, which are copyrighted. This repository includes them for research and educational use. Get permission before any commercial or public clinical use.
+- **Comprehensive System material:** the FQ table, the Popular list, Z values, Zest, the constellation criteria and the interpretive search strategy come from John E. Exner Jr.'s published CS works, which are copyrighted. The small tables (Popular, Z, Zest, constellations) are in the code for research and educational use. The FQ table is **not** in the repository: put your own copy at `api/app/data/fq_tables.db` (git-ignored, copied into the api image at build time) or point `FQ_DB_PATH` at it. It is a SQLite file with a table `FQ_tables(Card, Loc, v, Item, Cont, FQ)`. Without it, FQ falls back to the coder's u/− estimate and the FQ tests are skipped. Get permission before any commercial or public clinical use.
 - **R-PAS:** the CS is no longer maintained. Its successor, R-PAS, has updated norms and FQ tables but is proprietary and licensed separately. Inkspect doesn't include it.
 - **Norms:** the interpretation uses the CS adult conventions. It hasn't been validated for online self-administration or for automatic coding.

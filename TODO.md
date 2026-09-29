@@ -2,8 +2,8 @@
 
 ## Before wider public use
 - [ ] **S-CON and DEPI in public results** (owner: Kahngjoon). These clinical screening flags (suicide and depression constellations) still show on the Professional tab of every results page. Decide whether lay test takers should see them, e.g. show them only on the examiner review page.
-- [ ] **Exner FQ table in the public repo.** `api/app/data/fq_tables.db` is copyrighted CS material and has been public since 2022. Move it out of git so it's loaded from a local file, then purge it from history (`git filter-repo`, force push). History also still holds `data/users.db` (34 responses from 2022).
-- [ ] **Provenance of `api/tests/fixtures/example_protocol.txt`.** Confirm where the real coded protocol came from (published source vs a real person) and credit or remove it.
+- [x] **Exner FQ table in the public repo.** Moved out of git (`api/app/data/fq_tables.db` is now a local, git-ignored file) and purged from history together with `data/users.db`.
+- [x] **Example protocol.** Provenance unknown, so the protocol text was removed (fixtures, the real training test set, the old `example.txt`) and purged from history.
 - [ ] **Keep results out of search engines.** Add a `robots.txt` and `noindex` so only the landing page is indexed, never `/test`, `/results` or `/admin`.
 - [ ] **Cloudflare hardening.** Put `/admin` and `/api/admin` behind Cloudflare Access, turn on Always Use HTTPS, and add `www.inkspect.org.uk` if wanted.
 

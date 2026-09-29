@@ -7,3 +7,7 @@ dist/
 e2e/test-results/
 e2e/playwright-report/
 models/
+# Copyrighted Exner FQ table: keep a local copy only (see README).
+api/app/data/fq_tables.db
+# Real examiner-coded responses are personal data.
+scorer/training/real/

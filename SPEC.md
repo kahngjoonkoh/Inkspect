@@ -2,7 +2,7 @@
 
 An online Rorschach test in which the test taker **types free-text responses** and **draws the area they mean on the blot**, instead of picking from multiple-choice options. Scoring follows the Exner Comprehensive System (CS). Coding uses NLP, and the NLP backend can be swapped (rules, a hosted LLM, or a fine-tuned local decision model such as Laya).
 
-This replaces the 2022 Flask prototype. Git history keeps the old code, and the useful assets (`static/img/blot_*.jpg`, `data/FQ_tables.db`, `example.txt`) are migrated.
+This replaces the 2022 Flask prototype. Git history keeps the old code, and the blot images (`static/img/blot_*.jpg`) are migrated. The FQ table is kept outside git.
 
 ## Stack
 
@@ -73,7 +73,7 @@ Code every part that doesn't need language understanding deterministically. Use 
 
 ## Quality bar
 
-- `api` and `scorer`: pytest. Cover the structural summary math, location mapping, FQ lookup, examiner-rule logic, and `RuleCoder`. Calibrate against the coded protocol in `example.txt`.
+- `api` and `scorer`: pytest. Cover the structural summary math, location mapping, FQ lookup, examiner-rule logic, and `RuleCoder`.
 - `web`: typecheck and lint must be clean.
 - **End-to-end:** a Playwright test runs against the compose stack and completes a full 10-card test, including lasso drawing, through to the results page.
 - `README.md` documents setup, architecture, how to switch coders, how to edit region maps, and the licensing caveats for the FQ tables and CS norms.

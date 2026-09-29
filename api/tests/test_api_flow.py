@@ -1,5 +1,7 @@
 from app import examiner as ex
 
+from .conftest import needs_fq_table
+
 
 def start(client):
     r = client.post("/api/sessions", json={"consent": True})
@@ -72,6 +74,7 @@ def test_short_record_is_readministered(client):
     assert out["action"] == "inquiry"  # only once
 
 
+@needs_fq_table
 def test_full_session_to_results(client, scorer, admin):
     sid = start(client)
     out = run_response_phase(client, sid, per_card=2)
