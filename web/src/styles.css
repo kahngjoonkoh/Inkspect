@@ -84,6 +84,9 @@ h3 {
 }
 
 .topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.75rem 16px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
@@ -92,6 +95,14 @@ h3 {
   font-weight: 700;
   letter-spacing: 0.02em;
   text-decoration: none;
+  color: var(--text);
+}
+.repo-link {
+  display: flex;
+  color: var(--muted);
+}
+.repo-link:hover,
+.repo-link:focus-visible {
   color: var(--text);
 }
 
