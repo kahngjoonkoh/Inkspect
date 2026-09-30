@@ -11,7 +11,7 @@
 - [ ] Donation link: an optional `DONATE_URL` setting, shown in the footer and on the results page only (never during the test).
 - [ ] Real CS location maps: replace the placeholder region maps in `/admin/regions/<card>` and commit them to `regions/`.
 - [ ] Check the Overview band ranges (`api/app/overview.py`) against CS adult reference data.
-- [ ] Credit Exner in the README: *Exner (2003), The Rorschach: A Comprehensive System, Vol. 1, 4th ed., Wiley.*
+- [x] Credit Exner in the README (References section, with CHESSSS).
 
 ## Laya coder
 - [ ] Retrain with real reviewer corrections: `scorer/training/train.sh v2 training.jsonl`. See `scorer/training/README.md`.

@@ -116,10 +116,28 @@ docker compose --profile e2e run --rm e2e   # Playwright, a full 10-card test ag
 
 To work on the frontend with hot reload, run `cd web && npm run dev`. It proxies `/api` to the compose stack at `localhost:8080`; edit `web/vite.config.ts` if you changed `WEB_PORT`.
 
+## Background
+
+Inkspect started in July 2022 as Team Natural Intelligence's entry to the Uber Global Hackathon (Coding Track, *Solving Global Health*). The one-page poster is in [`docs/2022-uber-global-hackathon.pdf`](docs/2022-uber-global-hackathon.pdf). Its case still stands: many people with a mental illness never seek help, and the online inkblot tests that exist either skip the inquiry phase or reduce it to multiple choice. The 2022 prototype was a small Flask app. This rebuild carries out most of the poster's plan:
+
+| 2022 plan | Now |
+|---|---|
+| Free-text answers, a lasso to mark the area, automated prompts that guide the test | The same: typed responses, a freehand lasso in the inquiry, and the CS examiner rules with key-word follow-ups (`api/app/examiner.py`) |
+| NLP (POS tagging, semantic analysis, co-reference) scores every category | A coder handles only the language-dependent codes: rule-based, Claude, or the fine-tuned local Laya model. Location, FQ, Popular, Z and the summary are deterministic code |
+| FQ, content and Popular looked up in the CHESSSS database | FQ is looked up in the Exner table, which is now kept outside git. Popular and Z are in the code |
+| Results compared with norms and shown on a spectrum | The Overview tab places six bands against adult ranges. The Professional tab has the full structural summary |
+| No name asked, no data stored | Still no name or personal details, but anonymous answers **are** stored. That's a deliberate change: the automatic coding can't be checked or improved without them |
+| Get professional opinion once the prototype works | Still open. A validation needs real participants, ethics approval and trained coders (`TODO.md`) |
+
 ## Licensing caveats
 
 - **Code:** GNU GPL v3 (`LICENSE`).
 - **Inkblot images:** Hermann Rorschach's plates were published in 1921 and are in the public domain in many jurisdictions. Hogrefe, the test's publisher, still sells the official cards, and many professional bodies object to publishing them. Check your jurisdiction and professional code before making the site public.
-- **Comprehensive System material:** the FQ table, the Popular list, Z values, Zest, the constellation criteria and the interpretive search strategy come from John E. Exner Jr.'s published CS works, which are copyrighted. The small tables (Popular, Z, Zest, constellations) are in the code for research and educational use. The FQ table is **not** in the repository: put your own copy at `api/app/data/fq_tables.db` (git-ignored, copied into the api image at build time) or point `FQ_DB_PATH` at it. It is a SQLite file with a table `FQ_tables(Card, Loc, v, Item, Cont, FQ)`. Without it, FQ falls back to the coder's u/− estimate and the FQ tests are skipped. Get permission before any commercial or public clinical use.
+- **Comprehensive System material:** the FQ table, the Popular list, Z values, Zest, the constellation criteria and the interpretive search strategy come from John E. Exner Jr.'s published CS works, which are copyrighted. The small tables (Popular, Z, Zest, constellations) are in the code for research and educational use. The FQ table is **not** in the repository: put your own copy at `api/app/data/fq_tables.db` (git-ignored, copied into the api image at build time) or point `FQ_DB_PATH` at it. It is a SQLite file with a table `FQ_tables(Card, Loc, v, Item, Cont, FQ)`; the 2022 poster names the free CHESSSS scoring software (Fontan et al., 2013) as its source. Without it, FQ falls back to the coder's u/− estimate and the FQ tests are skipped. Get permission before any commercial or public clinical use.
 - **R-PAS:** the CS is no longer maintained. Its successor, R-PAS, has updated norms and FQ tables but is proprietary and licensed separately. Inkspect doesn't include it.
 - **Norms:** the interpretation uses the CS adult conventions. It hasn't been validated for online self-administration or for automatic coding.
+
+## References
+
+- Exner, J. E., Jr. (2003). *The Rorschach: A Comprehensive System, Vol. 1: Basic Foundations and Principles of Interpretation* (4th ed.). Wiley.
+- Fontan, P., Andronikof, A., Nicodemo, D., Al Nyssani, L., Guilheri, J., Hansen, K. G., Kumasaka, S., & Nakamura, N. (2013). CHESSSS: A free software solution to score and compute the Rorschach Comprehensive System and supplementary scales. *Rorschachiana, 34*(1), 56.

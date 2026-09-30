@@ -51,7 +51,8 @@ export default function Landing() {
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
         />
-        I understand this is not a diagnosis, and I agree that my anonymous answers are stored for scoring.
+        I understand this is not a diagnosis, and I agree that my anonymous answers are stored for scoring and may be
+        reviewed to improve the automatic scoring.
       </label>
       <div className="actions">
         <button className="primary" data-testid="start-button" disabled={!consent || busy} onClick={start}>

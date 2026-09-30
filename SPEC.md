@@ -2,7 +2,7 @@
 
 An online Rorschach test in which the test taker **types free-text responses** and **draws the area they mean on the blot**, instead of picking from multiple-choice options. Scoring follows the Exner Comprehensive System (CS). Coding uses NLP, and the NLP backend can be swapped (rules, a hosted LLM, or a fine-tuned local decision model such as Laya).
 
-This replaces the 2022 Flask prototype. Git history keeps the old code, and the blot images (`static/img/blot_*.jpg`) are migrated. The FQ table is kept outside git.
+This replaces the 2022 Flask prototype (hackathon poster: `docs/2022-uber-global-hackathon.pdf`). Git history keeps the old code, and the blot images (`static/img/blot_*.jpg`) are migrated. The FQ table is kept outside git.
 
 ## Stack
 
